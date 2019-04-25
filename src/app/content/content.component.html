@@ -1,0 +1,65 @@
+<div class="wrapper-content m-1">
+  <p class="font-weight-bold">Aqui você poderá ver todos os locais dispoíveis em sua conta e os valores capturados por seus
+    sensores.
+  </p>
+      <div class="row">
+        <div class="col-lg">
+          <p class="float-left mt-3 mr-2">Selecione um local:</p>
+          <mat-form-field class="float-left">
+            <mat-label>Local</mat-label>
+            <mat-select [(ngModel)]="selectedDevice" name="devices" (selectionChange)="getDeviceSensors($event)">
+              <mat-option *ngFor="let device of devices" [value]="device.local">
+                {{device.local}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-lg">
+          <p class="float-left mt-3 mr-2">Selecione um sensor:</p>
+          <mat-form-field class="float-left">
+            <mat-label>Sensor</mat-label>
+            <mat-select [(ngModel)]="selectedSensor" name="devices" (selectionChange)="prepareSensorData($event)">
+              <mat-option *ngFor="let sensorName of sensorNames" [value]="sensorName">
+                {{sensorName}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-lg">
+        </div>
+      </div>
+
+  <div class="row  border-top">
+    <div class="col">
+      
+      <div class="p-1" style="width: 60vw">
+        <canvas baseChart
+                  [datasets]="chartData"
+                  [labels]="chartLabels"
+                  [legend]="chartLegend"
+                  [chartType]="chartType">
+        </canvas>
+      </div>
+    </div>
+    <div class="col pr-0 pt-2" style="overflow-y: scroll; height: 60vh;">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let value of dataValues.slice().reverse(); let i=index">
+                <td>{{dataLables[dataValues.length-i-1]}}</td>
+                <td>{{value}}</td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+  </div>
+</div>
+
+<div class="loading-indicator">
+  <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+</div>
