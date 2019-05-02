@@ -1,33 +1,57 @@
 .wrapper-header  {
-    height: 30vh;
-    padding: 20px;
+    width: 100vw;
+    height: 10vh;
+    padding: 1vh;
     background: #00a87e;
     color: #fff;
     box-shadow: 0 2px 5px -2px grey;
+    border-bottom: 8px solid rgb(36, 125, 228);
+    overflow: hidden;
 }
-.menu-header li  {
-    display: block;
-    font-size: 16px;
-    margin-left: -24px;
-    padding: 0px;
+
+.pref_h {
+    height: 7vh;
 }
-.acessar-conta {
-    position: relative;
-    top: 10px;
-    background-color: #fff;
-    border: 0;
-    color: #333;
+
+#logo {
+    max-height: 100%;
 }
-@media screen and (min-width: 600px) {
-    .wrapper-header {
-        height: 15vh;
+
+.f_size {
+    font-size: 1em;
+}
+
+#logout {
+    max-width: 30px;
+}
+
+@media screen and (max-width: 576px) {
+    .wrapper-header  {
+        width: 100vw;
+        height: 13vh;
+        padding: 1vh;
+        background: #00a87e;
+        color: #fff;
+        box-shadow: 0 2px 5px -2px grey;
+        border-bottom: 8px solid royalblue;
+        overflow: hidden;
     }
-    .menu-header li {
-        list-style: none;
-        display: inline;
-        position: relative;
-        margin: 10px;
-        top: 30px;
-        font-size: 18px;
+    
+    .pref_h {
+        height: 6vh;
+    }
+
+    #logo {
+        max-height: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .f_size {
+        font-size: 0.7em;
+    }
+
+    #logout {
+        max-width: 15px;
     }
 }

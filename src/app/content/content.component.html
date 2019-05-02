@@ -1,65 +1,96 @@
-<div class="wrapper-content m-1">
-  <p class="font-weight-bold">Aqui você poderá ver todos os locais dispoíveis em sua conta e os valores capturados por seus
-    sensores.
-  </p>
-      <div class="row">
-        <div class="col-lg">
-          <p class="float-left mt-3 mr-2">Selecione um local:</p>
-          <mat-form-field class="float-left">
-            <mat-label>Local</mat-label>
-            <mat-select [(ngModel)]="selectedDevice" name="devices" (selectionChange)="getDeviceSensors($event)">
-              <mat-option *ngFor="let device of devices" [value]="device.local">
-                {{device.local}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+<div class="wrapper-content m-0">
+
+  <!-- Message -->
+  <p-messages [(value)]="msgs" [style]="{'width':'100vw','margin':'0','margin-top':'5px', 'padding':'0'}" [closable]="false"
+    key="message"></p-messages>
+
+  <!-- Config. do sensor -->
+  <div class="row m-1 pt-2 pb-1 box-shadow" style="background-color: mediumturquoise; border-radius: 10px;">
+    <div class="col-lg-3 col-md-12 d-flex justify-content-center justify-content-lg-start">
+      <p class="align-self-start p-2 m-lg-0 mb-2 font-weight-bold box-shadow" style="background-color: royalblue; border-radius: 10px; color: white; width: 13em; text-align: center">Configurações
+        do sensor</p>
+    </div>
+    <div class="col-lg-3 p-0">
+      <p class="float-left pt-1 mt-1 mr-1 ml-2">Selecione um local:</p>
+      <p-dropdown class="float-left pt-lg-1" [options]="devices" [(ngModel)]="selectedDevice" placeholder="Locais disponíveis"
+        (onChange)="getDeviceSensors($event)"></p-dropdown>
+    </div>
+    <div class="col-lg-3 p-0">
+      <p class="float-left pt-1 mt-1 mr-1 ml-2">Selecione um sensor:</p>
+      <p-dropdown class="float-left pt-lg-1" [options]="sensorNames" [(ngModel)]="selectedSensor" placeholder="Sensores disponíveis"
+        (onChange)="prepareSensorData($event)"></p-dropdown>
+    </div>
+    <div class="col-lg-3 p-0 d-flex flex-lg-column flex-xl-row justify-content-xl-end">
+      <p class="pt-1 mt-1 mr-1 ml-2">Tempo real:</p>
+      <p-toggleButton [(ngModel)]="realtime" onLabel="Ativado" offLabel="Desativado" onIcon="" offIcon="" [style]="{'width':'150px'}"
+        class="mt-lg-1 mr-lg-3" (onChange)="enableRT()"></p-toggleButton>
+    </div>
+  </div>
+
+  <!-- Filtros de dados -->
+  <div class="row m-1 py-2 box-shadow" style="background-color: mediumaquamarine; border-radius: 10px;">
+    <div class="col-2">
+      <p class="float-left p-2 m-0 font-weight-bold box-shadow" style="background-color: royalblue; border-radius: 10px; color: white; width: 13em; text-align: center">Filtro
+        de dados</p>
+    </div>
+    <div class="col-4">
+      <div class="d-flex flex-column flex-xl-row  justify-content-center">
+        <div>
+          <p class="my-2 mr-1 float-left">De</p>
+          <p-calendar class="float-left" [(ngModel)]="iDate" showTime="true" dateFormat="mm.dd.yy" hourFormat="24"
+            (onClose)="setCalendarFilter($event)"></p-calendar>
         </div>
-        <div class="col-lg">
-          <p class="float-left mt-3 mr-2">Selecione um sensor:</p>
-          <mat-form-field class="float-left">
-            <mat-label>Sensor</mat-label>
-            <mat-select [(ngModel)]="selectedSensor" name="devices" (selectionChange)="prepareSensorData($event)">
-              <mat-option *ngFor="let sensorName of sensorNames" [value]="sensorName">
-                {{sensorName}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="col-lg">
+        <div>
+          <p class="my-2 mx-1 float-left">até</p>
+          <p-calendar class="float-left" [(ngModel)]="eDate" showTime="true" dateFormat="mm.dd.yy" hourFormat="24"
+            (onClose)="setCalendarFilter($event)"></p-calendar>
         </div>
       </div>
+    </div>
+    <div class="col-6 pr-0 d-flex flex-xl-row  justify-content-end">
+      <p class="m-2">Últimos(as):</p>
+      <p-inputMask class="" [(ngModel)]="tMode" mask="9?99" [style]="{'width':'3em'}" (keyup.enter)="setLastFilter($event)"></p-inputMask>
+      <p-selectButton class="" [options]="modes" [(ngModel)]="sMode" (onChange)="setLastFilter($event)"></p-selectButton>
+    </div>
+  </div>
 
-  <div class="row  border-top">
-    <div class="col">
-      
-      <div class="p-1" style="width: 60vw">
-        <canvas baseChart
-                  [datasets]="chartData"
-                  [labels]="chartLabels"
-                  [legend]="chartLegend"
-                  [chartType]="chartType">
+  <!-- Gráfico e Lista -->
+  <div class="row">
+    <div class="col pr-0">
+      <div class="p-1 m-1 box-shadow" style="width: 70vw; height: 75vh; background-color: lightsteelblue; border-radius: 10px;">
+        <p class="text-center font-weight-bold">Gráfico</p>
+        <canvas baseChart [datasets]="chartData"
+                          [labels]="chartLabels"
+                          [legend]="chartLegend"
+                          [chartType]="chartType">
         </canvas>
       </div>
     </div>
-    <div class="col pr-0 pt-2" style="overflow-y: scroll; height: 60vh;">
-        <table class="table">
+    <div class="col pl-0">
+      <div id="parent" class="p-1 m-1 box-shadow" style="height: 75vh; background-color: lightblue; border-radius: 10px;">
+        <p class="text-center font-weight-bold">Lista dos dados coletados</p>
+        <div id="child" style="overflow-y: scroll; height: 68vh">
+          <table class="table table-striped table-borderless">
             <thead>
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Value</th>
+                <th scope="col">Data da coleta</th>
+                <th scope="col">Valor</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let value of dataValues.slice().reverse(); let i=index">
-                <td>{{dataLables[dataValues.length-i-1]}}</td>
+              <tr *ngFor="let value of sensorValues.slice().reverse(); let i=index">
+                <td>{{dataLables[sensorValues.length-i-1]}}</td>
                 <td>{{value}}</td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Loading -->
 <div class="loading-indicator">
   <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
 </div>
