@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 // Aqui decoramos a classe do component App Header
 @Component({
@@ -9,16 +10,18 @@ import { Component, OnInit } from '@angular/core';
 
 export class HeaderComponent implements OnInit {
 
-  userName = 'Engenharia AGT'
+  userName = ''
 
   // Aqui definimos o constructor da aplicacao
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
+    this.userName = localStorage.getItem("EMAIL").split("@")[0]
   }
 
   logout(){
-    console.log("Saiu !")
+    localStorage.clear()
+    this.router.navigate(['']);
   }
 
 }

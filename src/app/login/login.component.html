@@ -1,0 +1,45 @@
+<div class="main">
+  <!-- Message -->
+  <p-messages [(value)]="msgs" [style]="{'width':'100vw','margin':'0','margin-top':'5px', 'padding':'0'}" [closable]="false"
+  key="message" class="fixed-top"></p-messages>
+  <div class="container h-100">
+    <div class="row h-100">
+        <div class="col">
+        </div>
+        <div class="col-md-auto align-self-center mb-5">
+            <div class="white_square rounded box-shadow">
+              <!-- Imagem (Logo) -->
+              <img class="logo" src="../../assets/img/logo.png" width="100">
+
+              <!-- E-mail -->
+              <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">E-mail</span>
+                  </div>
+                  <input type="text" class="form-control" placeholder="E-mail" aria-label="Username" aria-describedby="basic-addon1" id="email" [(ngModel)]="email">
+              </div>
+
+              <!-- Senha -->
+              <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Senha</span>
+                  </div>
+                  <input type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" id="key" [(ngModel)]="password">
+                  <div class="input-group-append">
+                          <button class="btn btn-outline-success" type="button" id="login" data-dismiss="alert" (click)="login()">Entrar</button>
+                  </div>
+              </div>
+            </div>
+        </div>
+        <div class="col">
+        </div>
+    </div>
+  </div>
+  <p class="fixed-bottom copyright">©Copyright 2019 AGTechnologies - All rights reserved</p>
+</div>
+
+<!-- Loading -->
+<div class="loading-indicator">
+  <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+</div>
+

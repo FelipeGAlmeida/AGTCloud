@@ -1,6 +1,9 @@
 var LOADING:number
-var INTERVAL: number
-var MINUTES: number = 60*1000
+var CONN_INTERVAL: number
+
+export var SECONDS: number = 1000
+export var MINUTES: number = 60*SECONDS
+export var DATA_INTERVAL: number
 
 export function parseDate(dataLable0, dataLable1){ //Returns a string of an formatted date
       var date0: Date = new Date(dataLable0);
@@ -39,17 +42,15 @@ export function parseDate(dataLable0, dataLable1){ //Returns a string of an form
 
 export function verifyVacuum(date0, date1){
   const delta = date1.getTime() - date0.getTime()
-  if(delta > 6*MINUTES){
-    var gap = Math.floor((delta - (5*MINUTES)) / (5*MINUTES))
+  if(delta > (DATA_INTERVAL+1)*MINUTES){
+    var gap = Math.floor((delta - (DATA_INTERVAL*MINUTES)) / (DATA_INTERVAL*MINUTES))
 
-    console.log("GAP COUNT: "+gap)
     var lables = [], values = []
     for (let i = 0; i < gap; i++) {
-      lables.push(parseDate(new Date(date0.getTime() + (i+1)*5*MINUTES).toString(), null).date)
-      values.push("Sem valor")
+      lables.push(parseDate(new Date(date0.getTime() + (i+1)*DATA_INTERVAL*MINUTES).toString(), null).date)
+      values.push("(Sem valor)")
     }
-    console.log("Lables: "+lables)
-
+    
     return {
       values: values,
       lables: lables
@@ -64,23 +65,23 @@ export function filterDate(dataInfo, iDate, eDate, mode, time) {
   switch(mode){
     case "mn":
       eDate = new Date()
-      iDate = new Date(eDate.getTime()-1000*60*time) //ms -> s -> mn * t
+      iDate = new Date(eDate.getTime()-MINUTES*time) //ms -> s -> mn * t
     break
     case "hh":
       eDate = new Date()
-      iDate = new Date(eDate.getTime()-1000*60*60*time) //ms -> s -> mn -> h * t
+      iDate = new Date(eDate.getTime()-MINUTES*60*time) //ms -> s -> mn -> h * t
     break
     case "dd":
       eDate = new Date()
-      iDate = new Date(eDate.getTime()-1000*60*60*24*time) //ms -> s -> mn -> h -> d * t
+      iDate = new Date(eDate.getTime()-MINUTES*60*24*time) //ms -> s -> mn -> h -> d * t
     break
     case "mm":
       eDate = new Date()
-      iDate = new Date(eDate.getTime()-1000*60*60*24*30*time) //ms -> s -> mn -> h -> d -> m * t
+      iDate = new Date(eDate.getTime()-MINUTES*60*24*30*time) //ms -> s -> mn -> h -> d -> m * t
     break
     case "aa":
       eDate = new Date()
-      iDate = new Date(eDate.getTime()-1000*60*60*24*30*12*time) //ms -> s -> mn -> h -> d -> m -> a * t
+      iDate = new Date(eDate.getTime()-MINUTES*60*24*30*12*time) //ms -> s -> mn -> h -> d -> m -> a * t
     break
     default:
       eDate = new Date(eDate)
@@ -110,26 +111,22 @@ export function filterDate(dataInfo, iDate, eDate, mode, time) {
 
     return {res, iDate, eDate}
   }
+}
 
-  function getFormattedStringDate(date:String){ //returns a string for Date() contructor
-    if(date.length <= 3) return "_"
-    var hh = date.substring(0,2)
-    var mn = date.substring(3,5)
-    var ss = date.substring(6,8)
-    var dd = date.substring(11,13)
-    var mm = date.substring(14,16)
-    var aa = date.substring(17)
+export function getFormattedStringDate(date:String){ //returns a string for Date() contructor
+  if(date.length <= 3) return "_"
+  var hh = date.substring(0,2)
+  var mn = date.substring(3,5)
+  var ss = date.substring(6,8)
+  var dd = date.substring(11,13)
+  var mm = date.substring(14,16)
+  var aa = date.substring(17)
 
-    return mm+"/"+dd+"/"+aa+" "+hh+":"+mn+":"+ss
-  }
+  return mm+"/"+dd+"/"+aa+" "+hh+":"+mn+":"+ss
 }
 
 export function startLoading(loading:HTMLElement){
   loading.style.display = "block"
-}
-
-export function fillVacuum(values, lables){ // 0 5 10 * 20 25 * * * 45 * * 60
-  
 }
 
 export function cancelLoading(loading:HTMLElement, msgs, err, callback, self){
@@ -138,10 +135,10 @@ export function cancelLoading(loading:HTMLElement, msgs, err, callback, self){
 
   if(err){
     msgs.pop();
-    clearInterval(INTERVAL)
-    msgs.push({severity:'error', summary:'Não foi possível buscar os dados no servidor.', detail:'Vamos tentar uma nova conexão em 5 segundos.'});
+    clearInterval(CONN_INTERVAL)
+    msgs[0] = {severity:'error', summary:'Não foi possível buscar os dados no servidor.', detail:'Vamos tentar uma nova conexão em 5 segundos.'}
     var time = 4
-    INTERVAL = window.setInterval( () => {
+    CONN_INTERVAL = window.setInterval( () => {
       if(time > 0){
         msgs[0] = {severity:'error', summary:'Não foi possível buscar os dados no servidor.', detail:'Vamos tentar uma nova conexão em '+time+' segundos.'}
       }else if(time == 0){
@@ -149,10 +146,38 @@ export function cancelLoading(loading:HTMLElement, msgs, err, callback, self){
         callback.call(self)
       }else if(time == -3){
         msgs.pop()
-        clearInterval(INTERVAL)
+        clearInterval(CONN_INTERVAL)
       }
       time = time - 1
-    }, 1000)
+    }, SECONDS)
   }
+}
 
+export function cancelLoginLoading(loading:HTMLElement, msgs, err){
+  window.clearTimeout(LOADING)
+  loading.style.display = "none"
+
+  if(err){
+    msgs.pop();
+    clearInterval(CONN_INTERVAL)
+
+    var detail_msg = 'Verifique sua conexão e tente novamente.'
+
+    var err_type: String = err.error.message
+    if(err_type.includes('User')){
+      detail_msg = "O e-mail fornecido não está cadastrado no sistema."
+    }
+    else if(err_type.includes('Password')){
+      detail_msg = "A senha fornecida está incorreta"
+    }
+
+    msgs[0] = {severity:'error', summary:'Não foi possível autenticar-se no servidor.', detail: detail_msg}
+    CONN_INTERVAL = window.setTimeout( () => {
+      msgs.pop()
+    }, 5*SECONDS)
+  }
+}
+
+export function setDataInterval(data_interval){
+  DATA_INTERVAL = data_interval
 }
