@@ -9,6 +9,7 @@ import { ChartsModule } from 'ng2-charts';
 import { CalendarModule } from 'primeng/calendar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DropdownModule } from 'primeng/dropdown';
+import {MultiSelectModule} from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ToggleButtonModule } from 'primeng/togglebutton';
@@ -38,6 +39,7 @@ import { LoginComponent } from './login/login.component';
     HttpClientModule,
     BrowserAnimationsModule,
     DropdownModule,
+    MultiSelectModule,
     MatProgressSpinnerModule,
     ChartsModule,
     CalendarModule,

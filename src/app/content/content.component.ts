@@ -1,7 +1,8 @@
+import { ChartsModule } from 'ng2-charts';
 import { SECONDS } from './../../utils/utils';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {MessageService} from 'primeng/components/common/messageservice';
+import { MessageService } from 'primeng/components/common/messageservice';
 import { Router } from '@angular/router';
 
 import * as Utils from '../../utils/utils';
@@ -24,7 +25,9 @@ export class ContentComponent implements OnInit {
   devices = [];
   sensorNames = [];
   sensors = [];
-  sensorValues = [];
+  humidityValues = [];
+  pressureValues = [];
+  temperatureValues = [];
   dataLables = [];
   msgs = [];
   modes: any
@@ -37,7 +40,6 @@ export class ContentComponent implements OnInit {
   rtCount: number
   rtLoop: number
   rtLoop2: number
-  data: any
   selectedDevice: any
   selectedSensor: any
   eDate = new Date()
@@ -51,6 +53,7 @@ export class ContentComponent implements OnInit {
   public chartLegend;
   public chartData = [];
   public chartColor = [];
+  public options;
 
   constructor(public http: HttpClient, public msrv: MessageService, private router: Router) {
     this.initChart();
@@ -63,7 +66,7 @@ export class ContentComponent implements OnInit {
 
     this.devices = [];
     Utils.startLoading(this.loading)
-    //else this.msgs.push({key: 'toast', severity:'warn', summary: 'Info Message', detail:'PrimeNG rocks'});
+
     this.http.get<ServerResponse>(this.PROXY_URL+this.DEVICE_URL+this.user).subscribe
     (data => {
       Utils.cancelLoading(this.loading, this.msgs, false, null, null)
@@ -113,7 +116,9 @@ export class ContentComponent implements OnInit {
   }
 
   prepareSensorData(event){
-    this.sensorValues = []
+    this.humidityValues = []
+    this.pressureValues = []
+    this.temperatureValues = []
     this.dataLables = []
     var i = 0;
     this.sensors.forEach((sensor, index) => {
@@ -124,14 +129,34 @@ export class ContentComponent implements OnInit {
       this.dataLables.push(ret.date) //Adiciona a data atual analisada
 
       var available_data = false
-      for(var key in sensor){      
-        if(key == this.selectedSensor){
-          available_data = true
-          this.sensorValues.push(sensor[key]); //Adiciona o sensor atual sendo atualizado
-          break;
+      for(var key in sensor){
+        if(key == "sns_humidity"){
+          if(this.selectedSensor.toString().includes("sns_humidity")){
+            available_data = true
+            this.humidityValues.push(sensor[key]); //Adiciona o sensor atual sendo atualizado
+          }
+        }
+        if(key == "sns_atmosphericPressure"){
+          if(this.selectedSensor.toString().includes("sns_atmosphericPressure")){
+            available_data = true
+            this.pressureValues.push(sensor[key]); //Adiciona o sensor atual sendo atualizado
+          }
+        }
+        if(key == "sns_temperature"){
+          if(this.selectedSensor.toString().includes("sns_temperature")){
+            available_data = true
+            this.temperatureValues.push(sensor[key]); //Adiciona o sensor atual sendo atualizado
+          }
         }
       }
-      if(!available_data) this.sensorValues.push("(Sem valor)")
+
+      console.log("H:"+this.humidityValues.length+" P:"+this.pressureValues.length+" T:"+this.temperatureValues.length)
+
+      if(!available_data){
+        this.humidityValues.push("(Sem valor)")
+        this.pressureValues.push("(Sem valor)")
+        this.temperatureValues.push("(Sem valor)")
+      }
 
       if(ret.gap != undefined && ret.gap.lables.length > 0){ //Adiciona o vetor diferença (gap) para preencher dados nao enviados
 
@@ -139,7 +164,9 @@ export class ContentComponent implements OnInit {
           const lable = ret.gap.lables[j]
           const value = ret.gap.values[j]
           this.dataLables.splice(i+1+j,0,lable)
-          this.sensorValues.splice(i+1+j,0,value)
+          if(this.selectedSensor.toString().includes("sns_humidity")) this.humidityValues.splice(i+1+j,0,value)
+          if(this.selectedSensor.toString().includes("sns_atmosphericPressure")) this.pressureValues.splice(i+1+j,0,value)
+          if(this.selectedSensor.toString().includes("sns_temperature")) this.temperatureValues.splice(i+1+j,0,value)
           i++
         }
       }
@@ -172,11 +199,18 @@ export class ContentComponent implements OnInit {
     this.eDate = ret.eDate
 
     const res = ret.res
-    var values = [], lables = []
+    var h_values = [], p_values = [], t_values = [], lables = []
     for (let i = res[0]; i <= res[1]; i++) {
-      values.push(this.sensorValues[i])
+      h_values.push(this.humidityValues[i])
+      p_values.push(this.pressureValues[i])
+      t_values.push(this.temperatureValues[i])
       lables.push(this.dataLables[i])      
     }
+
+    var values = []
+    if(h_values.length > 0) values.push(h_values)
+    if(p_values.length > 0) values.push(p_values)
+    if(t_values.length > 0) values.push(t_values)
 
     if(this.dataLables[this.dataLables.length-1] != this.lastDataRec){
       this.setChart(values, lables)
@@ -190,13 +224,50 @@ export class ContentComponent implements OnInit {
     this.chartType = 'line';
     this.chartLegend = false;
     this.chartData = [{data: [], label: this.selectedSensor}];
+
+    this.options = {
+      scales: {
+        yAxes: [{
+          position: "left",
+          type: 'linear',
+          id: 'yl'
+        }, {
+          position: "right",
+          type: 'linear',
+          id: 'yr'
+        }]
+      }
+    }
   }
 
   setChart(values, lables){
     this.chartLabels = lables;
     this.chartType = 'line';
     this.chartLegend = false;
-    this.chartData = [{data: values, label: this.selectedSensor, borderColor: 'rgba(0, 99, 132, 0.8)', backgroundColor: 'rgba(0, 99, 132,0.2)', pointBorderColor: 'rgba(0, 99, 132, 0.8)', pointBackgroundColor: 'rgba(78, 180, 189, 1)', pointHoverBackgroundColor: '#00f', pointHoverBorderColor: 'rgba(255, 255, 255, 0.5)'}];
+    this.chartData = this.generateDataset(values)
+  }
+
+  generateDataset(values){
+    let dataset = []
+    let yAxesID = ''
+    values.forEach((v,i) => {
+      var color = ['rgba(0, 0, 255, 0.6)','rgba(0, 255, 0, 0.6)','rgba(255, 0, 0, 0.6)']//"#AA"+((1<<24)*Math.random()|0).toString(16)
+      if(v[0]>100) yAxesID = 'yr'
+      else yAxesID = 'yl'
+      dataset.push({
+        data: v,
+        label: this.sensorNames[i].value,
+        borderColor: color[i],
+        backgroundColor: color[i],
+        pointBorderColor: color[i],
+        pointBackgroundColor: color[i],
+        pointHoverBackgroundColor: color[i],
+        pointHoverBorderColor: color[i],
+        fill: false,
+        yAxisID: yAxesID
+      })
+    });
+    return dataset
   }
 
   enableRT(){
@@ -209,21 +280,17 @@ export class ContentComponent implements OnInit {
         lastUpdateTime = lastUpdateTime + Utils.DATA_INTERVAL*Utils.MINUTES
 
         if(this.rtCount*SECONDS >= Utils.MINUTES){
-          console.log("RESETED !")
           window.clearInterval(this.rtLoop2)
           this.rtCount = -1;
         }
 
-        console.log(currentTime+" > "+lastUpdateTime)
         if(currentTime >= lastUpdateTime){
           if(0 == this.rtCount++)
             this.rtLoop2 = window.setInterval(()=>{
-              console.log("UPDATE !")
               this.getDeviceSensors(null)
             }, (15*Utils.SECONDS))
         }
 
-        console.log(this.rtCount)
       }, Utils.SECONDS)
     }else{
       window.clearInterval(this.rtLoop2)
