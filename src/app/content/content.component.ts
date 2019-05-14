@@ -28,12 +28,13 @@ export class ContentComponent implements OnInit {
   humidityValues = [];
   pressureValues = [];
   temperatureValues = [];
+  selectedValues = [];
   dataLables = [];
   msgs = [];
-  modes: any
 
   //Variables
   lastDataRec = ""
+  dictionary: any
   user: string
   loading: HTMLElement
   realtime = false
@@ -119,6 +120,7 @@ export class ContentComponent implements OnInit {
     this.humidityValues = []
     this.pressureValues = []
     this.temperatureValues = []
+    this.selectedValues = []
     this.dataLables = []
     var i = 0;
     this.sensors.forEach((sensor, index) => {
@@ -127,6 +129,7 @@ export class ContentComponent implements OnInit {
       if(index >= this.sensors.length-1) idx = index
       var ret = Utils.parseDate(sensor.creation_date, this.sensors[idx].creation_date) // Converte e compara a distância entre as datas
       this.dataLables.push(ret.date) //Adiciona a data atual analisada
+      this.selectedValues.push(0)
 
       var available_data = false
       for(var key in sensor){
@@ -150,8 +153,6 @@ export class ContentComponent implements OnInit {
         }
       }
 
-      console.log("H:"+this.humidityValues.length+" P:"+this.pressureValues.length+" T:"+this.temperatureValues.length)
-
       if(!available_data){
         this.humidityValues.push("(Sem valor)")
         this.pressureValues.push("(Sem valor)")
@@ -164,6 +165,7 @@ export class ContentComponent implements OnInit {
           const lable = ret.gap.lables[j]
           const value = ret.gap.values[j]
           this.dataLables.splice(i+1+j,0,lable)
+          this.selectedValues.push(0)
           if(this.selectedSensor.toString().includes("sns_humidity")) this.humidityValues.splice(i+1+j,0,value)
           if(this.selectedSensor.toString().includes("sns_atmosphericPressure")) this.pressureValues.splice(i+1+j,0,value)
           if(this.selectedSensor.toString().includes("sns_temperature")) this.temperatureValues.splice(i+1+j,0,value)
@@ -230,12 +232,23 @@ export class ContentComponent implements OnInit {
         yAxes: [{
           position: "left",
           type: 'linear',
-          id: 'yl'
+          id: 'yl',
+          ticks: {
+            fontColor: "#FFF"
+          }
         }, {
           position: "right",
           type: 'linear',
-          id: 'yr'
-        }]
+          id: 'yr',
+          ticks: {
+            fontColor: "#FFF"
+          }
+        }],
+        xAxes: [{ 
+          ticks: {
+            fontColor: "#FFF"
+          }
+      }],
       }
     }
   }
@@ -256,7 +269,7 @@ export class ContentComponent implements OnInit {
       else yAxesID = 'yl'
       dataset.push({
         data: v,
-        label: this.sensorNames[i].value,
+        label: this.dictionary[this.sensorNames[i].value],
         borderColor: color[i],
         backgroundColor: color[i],
         pointBorderColor: color[i],
@@ -303,13 +316,6 @@ export class ContentComponent implements OnInit {
     child.style.right = child.clientWidth - child.offsetWidth + "px";
     this.loading = (document.querySelectorAll('.loading-indicator'))[0] as HTMLElement
     this.loading.style.display = "none"
-    this.modes = [
-      {label: 'Minuto(s)', value: 'mn', icon: 'pi pi-clock'},
-      {label: 'Hora(s)', value: 'hh', icon: 'pi pi-clock'},
-      {label: 'Dia(s)', value: 'dd', icon: 'pi pi-calendar'},
-      {label: 'Mês(s)', value: 'mm', icon: 'pi pi-calendar'},
-      {label: 'Ano(s)', value: 'aa', icon: 'pi pi-calendar'}
-  ];
 
     var userId = localStorage.getItem("UID")
 
@@ -319,6 +325,12 @@ export class ContentComponent implements OnInit {
     }
 
     this.getUserDevices(userId) //if there is an user, get his devices
+
+    this.dictionary = {
+      "sns_humidity":"Umidade",
+      "sns_temperature":"Temperatura",
+      "sns_atmosphericPressure":"Pressão"
+    }
   }
 
 }

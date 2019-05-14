@@ -9,11 +9,14 @@ import { ChartsModule } from 'ng2-charts';
 import { CalendarModule } from 'primeng/calendar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DropdownModule } from 'primeng/dropdown';
-import {MultiSelectModule} from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { PasswordModule } from 'primeng/password';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 import { HeaderComponent } from './header/header.component';
 import { ContentComponent } from './content/content.component';
@@ -40,7 +43,10 @@ import { LoginComponent } from './login/login.component';
     BrowserAnimationsModule,
     DropdownModule,
     MultiSelectModule,
+    CheckboxModule,
+    RadioButtonModule,
     MatProgressSpinnerModule,
+    InputSwitchModule,
     ChartsModule,
     CalendarModule,
     MessagesModule,

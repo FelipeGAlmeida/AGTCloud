@@ -9,7 +9,7 @@
         <div class="col-md-auto align-self-center mb-5">
             <div class="white_square rounded box-shadow">
               <!-- Imagem (Logo) -->
-              <img class="logo" src="../../assets/img/logo.png" width="100">
+              <img class="logo" src="../../assets/img/logonovo.png" width="100">
 
               <!-- E-mail -->
               <div class="input-group mb-3">
@@ -24,9 +24,9 @@
                   <div class="input-group-prepend">
                       <span class="input-group-text" id="basic-addon1">Senha</span>
                   </div>
-                  <input type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" id="key" [(ngModel)]="password">
+                  <input type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" id="key" [(ngModel)]="password" (keyup.enter)="login()">
                   <div class="input-group-append">
-                          <button class="btn btn-outline-success" type="button" id="login" data-dismiss="alert" (click)="login()">Entrar</button>
+                          <button class="btn btn-outline-primary" type="button" id="login" data-dismiss="alert" (click)="login()">Entrar</button>
                   </div>
               </div>
             </div>

@@ -2,10 +2,10 @@
     width: 100vw;
     height: 10vh;
     padding: 1vh;
-    background: #00a87e;
+    background: #131313;
     color: #fff;
     box-shadow: 0 2px 5px -2px grey;
-    border-bottom: 8px solid rgb(36, 125, 228);
+    border-bottom: 8px solid #007AD9;
     overflow: hidden;
 }
 
@@ -30,7 +30,7 @@
         width: 100vw;
         height: 13vh;
         padding: 1vh;
-        background: #00a87e;
+        background: #131313;
         color: #fff;
         box-shadow: 0 2px 5px -2px grey;
         border-bottom: 8px solid royalblue;
