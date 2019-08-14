@@ -3,32 +3,34 @@ var CONN_INTERVAL: number
 
 export var SECONDS: number = 1000
 export var MINUTES: number = 60*SECONDS
+export var DAYS: number = MINUTES * 60 * 24
 export var DATA_INTERVAL: number
 
 export function parseDate(dataLable0, dataLable1){ //Returns a string of an formatted date
       var date0: Date = new Date(dataLable0);
       var date1: Date = new Date(dataLable1);
 
-      if(date1 != null)
+      if(dataLable0 != null){
         var ret = verifyVacuum(date0, date1)
+      }
 
-      var aux = defineAux(date0.getHours())
-      var str_date = aux+date0.getHours() //Hour
+      var aux = defineAux(date1.getHours())
+      var str_date = aux+date1.getHours() //Hour
 
-      aux = defineAux(date0.getMinutes())
-      str_date += ":" + aux+date0.getMinutes() //Minutes
+      aux = defineAux(date1.getMinutes())
+      str_date += ":" + aux+date1.getMinutes() //Minutes
 
-      aux = defineAux(date0.getSeconds())
-      str_date += ":" + aux+date0.getSeconds() // Seconds
+      aux = defineAux(date1.getSeconds())
+      str_date += ":" + aux+date1.getSeconds() // Seconds
 
-      aux = defineAux(date0.getDate())
-      str_date += " - " + aux+date0.getDate() //Day
+      aux = defineAux(date1.getDate())
+      str_date += " - " + aux+date1.getDate() //Day
 
-      aux = defineAux(date0.getMonth()+1)
-      str_date += "/" + aux+(date0.getMonth()+1) //Month
+      aux = defineAux(date1.getMonth()+1)
+      str_date += "/" + aux+(date1.getMonth()+1) //Month
 
-      aux = defineAux(date0.getFullYear()-2000)
-      str_date += "/" + aux+(date0.getFullYear()-2000) //Year
+      aux = defineAux(date1.getFullYear()-2000)
+      str_date += "/" + aux+(date1.getFullYear()-2000) //Year
 
       return { date: str_date,
                gap: ret
@@ -44,16 +46,15 @@ export function verifyVacuum(date0, date1){
   const delta = date1.getTime() - date0.getTime()
   if(delta > (DATA_INTERVAL+1)*MINUTES){
     var gap = Math.floor((delta - (DATA_INTERVAL*MINUTES)) / (DATA_INTERVAL*MINUTES))
-
     var lables = [], values = []
     for (let i = 0; i < gap; i++) {
-      lables.push(parseDate(new Date(date0.getTime() + (i+1)*DATA_INTERVAL*MINUTES).toString(), null).date)
-      values.push("(Sem valor)")
+      lables.push(parseDate(null, new Date(date0.getTime() + (i+1)*DATA_INTERVAL*MINUTES).toString()).date)
+      values.push("--")
     }
     
     return {
-      values: values,
-      lables: lables
+      values: values.reverse(),
+      lables: lables.reverse()
     }
   }
 }
@@ -95,19 +96,18 @@ export function filterDate(dataInfo, iDate, eDate, mode, time) {
     for (let i = 0; i < dataInfo.length; i++) {
       const date = dataInfo[i];
       var cDate = new Date(getFormattedStringDate(date))
-      if(cDate.getTime() > iDate.getTime() && !iCtrl){
+      if(cDate.getTime() > iDate.getTime() && !iCtrl){ //Descobre o index correspondente a data inicial (primeira após inicial)
         res[0] = i;
         iCtrl = true;
       }
-      if(cDate.getTime() > eDate.getTime() && !eCtrl){
+      if(cDate.getTime() > eDate.getTime() && !eCtrl){//Descobre o index correspondente a data final (última antes da final)
         res[1]= i-1;
         eCtrl = true;
       }
     }
-
-    if(mode != "range" && !iCtrl && !eCtrl) {
-      res[0] = res[1];
-    }
+    // if(mode != "range" && !iCtrl && !eCtrl) {
+    //   res[0] = res[1];
+    // }
 
     return {res, iDate, eDate}
   }
@@ -123,6 +123,19 @@ export function getFormattedStringDate(date:String){ //returns a string for Date
   var aa = date.substring(17)
 
   return mm+"/"+dd+"/"+aa+" "+hh+":"+mn+":"+ss
+}
+
+export function getSensorIndex(sensorName){
+  switch(sensorName){
+    case 'sns_hall': return 0
+    break
+    case 'sns_humidity': return 1
+    break
+    case 'sns_temperature': return 2
+    break
+    case 'sns_atmosphericPressure': return 3
+    break
+  }
 }
 
 export function startLoading(loading:HTMLElement){

@@ -29,13 +29,14 @@ p, td, th, p-checkbox, p-radioButton {
 }
 
 #parent {
+    min-height: 350px;
     overflow: hidden;
     position: relative;
 }
 
 #child {
     position: absolute;
-    top: 30px;
+    top: 52px;
     bottom: 0px;
     left: 0px;
     right: 0px; /* exact value is given through JavaScript */
@@ -74,7 +75,4 @@ p, td, th, p-checkbox, p-radioButton {
   }
 
   @media screen and (max-width: 1200px) {
-      .ext-height {
-          height: 500px;
-      }
   }
